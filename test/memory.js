@@ -6,7 +6,7 @@ const cache = new Cacheism(Cacheism.store.memory());
 
 const helpers = require('./helpers');
 
-describe.only('memory', function() {
+describe('memory', function() {
 
   beforeEach(function() {
     // runs before each test in this block
@@ -29,9 +29,8 @@ describe.only('memory', function() {
         helpers.expectCacheHit(c, false, 'live');
         helpers.expectCacheNoErrors(c);
 
-        expect(cache.store.data).to.have.property('-internal/cache');
-
-        const d = Cacheism.Data.parse(cache.store.data['-internal/cache']);
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataHit(d, 'live', c.etag);
         helpers.expectDataNoErrors(d);
@@ -46,9 +45,8 @@ describe.only('memory', function() {
         helpers.expectCacheErrors(c, 'cache error', 1);
         expect(c.created).to.eql(c.errorTime);
 
-        expect(cache.store.data).to.have.property('-internal/cache');
-
-        const d = Cacheism.Data.parse(cache.store.data['-internal/cache']);
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataMiss(d, null);
         helpers.expectDataErrors(d, 'Error: cache error', 1);
@@ -62,9 +60,9 @@ describe.only('memory', function() {
       it('should return a Hit (live value) on success', async function () {
         mockdate.set('2000-11-22');
 
-        cache.store.data['-internal/cache'] = Cacheism.Data.fromResponse(
+        await cache.store.set(Cacheism.Data.fromResponse(
           new Cacheism.Hit('-internal/cache', 'cached')
-        ).stringify();
+        ));
 
         mockdate.reset();
 
@@ -75,9 +73,8 @@ describe.only('memory', function() {
         helpers.expectCacheHit(c, false, 'live');
         helpers.expectCacheNoErrors(c);
 
-        expect(cache.store.data).to.have.property('-internal/cache');
-
-        const d = Cacheism.Data.parse(cache.store.data['-internal/cache']);
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataHit(d, 'live', c.etag);
         helpers.expectDataNoErrors(d);
@@ -86,9 +83,9 @@ describe.only('memory', function() {
       it('should return a Miss on error', async function () {
         mockdate.set('2000-11-22');
 
-        cache.store.data['-internal/cache'] = Cacheism.Data.fromResponse(
+        await cache.store.set(Cacheism.Data.fromResponse(
           new Cacheism.Hit('-internal/cache', 'cached')
-        ).stringify();
+        ));
 
         mockdate.reset();
 
@@ -100,9 +97,8 @@ describe.only('memory', function() {
         helpers.expectCacheErrors(c, 'cache error', 1);
         expect(c.created).to.eql(c.errorTime);
 
-        expect(cache.store.data).to.have.property('-internal/cache');
-
-        const d = Cacheism.Data.parse(cache.store.data['-internal/cache']);
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataMiss(d, null);
         helpers.expectDataErrors(d, 'Error: cache error', 1);
@@ -125,9 +121,8 @@ describe.only('memory', function() {
         helpers.expectCacheHit(c, false, 'live');
         helpers.expectCacheNoErrors(c);
 
-        expect(cache.store.data).to.have.property('-internal/cache');
-
-        const d = Cacheism.Data.parse(cache.store.data['-internal/cache']);
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataHit(d, 'live', c.etag);
         helpers.expectDataNoErrors(d);
@@ -142,9 +137,8 @@ describe.only('memory', function() {
         helpers.expectCacheErrors(c, 'cache error', 1);
         expect(c.created).to.eql(c.errorTime);
 
-        expect(cache.store.data).to.have.property('-internal/cache');
-
-        const d = Cacheism.Data.parse(cache.store.data['-internal/cache']);
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataMiss(d, null, c.etag);
         helpers.expectDataErrors(d, 'Error: cache error', 1);
@@ -158,9 +152,9 @@ describe.only('memory', function() {
       it('should return a Hit (live value) on success', async function () {
         mockdate.set('2000-11-22');
 
-        cache.store.data['-internal/cache'] = Cacheism.Data.fromResponse(
+        await cache.store.set(Cacheism.Data.fromResponse(
           new Cacheism.Hit('-internal/cache', 'cached')
-        ).stringify();
+        ));
 
         mockdate.reset();
 
@@ -171,9 +165,8 @@ describe.only('memory', function() {
         helpers.expectCacheHit(c, false, 'live');
         helpers.expectCacheNoErrors(c);
 
-        expect(cache.store.data).to.have.property('-internal/cache');
-
-        const d = Cacheism.Data.parse(cache.store.data['-internal/cache']);
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataHit(d, 'live', c.etag);
         helpers.expectDataNoErrors(d);
@@ -182,9 +175,9 @@ describe.only('memory', function() {
       it('should return a Hit (cached value) on error', async function () {
         mockdate.set('2000-11-22');
 
-        cache.store.data['-internal/cache'] = Cacheism.Data.fromResponse(
+        await cache.store.set(Cacheism.Data.fromResponse(
           new Cacheism.Hit('-internal/cache', 'cached')
-        ).stringify();
+        ));
 
         mockdate.reset();
 
@@ -196,9 +189,8 @@ describe.only('memory', function() {
         helpers.expectCacheErrors(c, 'cache error', 1);
         expect(c.created).not.to.eql(c.errorTime);
 
-        expect(cache.store.data).to.have.property('-internal/cache');
-
-        const d = Cacheism.Data.parse(cache.store.data['-internal/cache']);
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataHit(d, 'cached', c.etag);
         helpers.expectDataErrors(d, 'Error: cache error', 1);
@@ -221,9 +213,8 @@ describe.only('memory', function() {
         helpers.expectCacheHit(c, false, 'live');
         helpers.expectCacheNoErrors(c);
 
-        expect(cache.store.data).to.have.property('-internal/cache');
-
-        const d = Cacheism.Data.parse(cache.store.data['-internal/cache']);
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataHit(d, 'live', c.etag);
         helpers.expectDataNoErrors(d);
@@ -238,9 +229,8 @@ describe.only('memory', function() {
         helpers.expectCacheErrors(c, 'cache error', 1);
         expect(c.created).to.eql(c.errorTime);
 
-        expect(cache.store.data).to.have.property('-internal/cache');
-
-        const d = Cacheism.Data.parse(cache.store.data['-internal/cache']);
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataMiss(d, null, c.etag);
         helpers.expectDataErrors(d, 'Error: cache error', 1);
@@ -254,9 +244,9 @@ describe.only('memory', function() {
       it('should return a Hit (cached value) on success', async function () {
         mockdate.set('2000-11-22');
 
-        cache.store.data['-internal/cache'] = Cacheism.Data.fromResponse(
+        await cache.store.set(Cacheism.Data.fromResponse(
           new Cacheism.Hit('-internal/cache', 'cached')
-        ).stringify();
+        ));
 
         mockdate.reset();
 
@@ -267,9 +257,8 @@ describe.only('memory', function() {
         helpers.expectCacheHit(c, true, 'cached');
         helpers.expectCacheNoErrors(c);
 
-        expect(cache.store.data).to.have.property('-internal/cache');
-
-        const d = Cacheism.Data.parse(cache.store.data['-internal/cache']);
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataHit(d, 'cached', c.etag);
         helpers.expectDataNoErrors(d);
@@ -278,9 +267,9 @@ describe.only('memory', function() {
       it('should return a Hit (cached value) on error', async function () {
         mockdate.set('2000-11-22');
 
-        cache.store.data['-internal/cache'] = Cacheism.Data.fromResponse(
+        await cache.store.set(Cacheism.Data.fromResponse(
           new Cacheism.Hit('-internal/cache', 'cached')
-        ).stringify();
+        ));
 
         mockdate.reset();
 
@@ -291,9 +280,8 @@ describe.only('memory', function() {
         helpers.expectCacheHit(c, true, 'cached');
         helpers.expectCacheNoErrors(c);
 
-        expect(cache.store.data).to.have.property('-internal/cache');
-
-        const d = Cacheism.Data.parse(cache.store.data['-internal/cache']);
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataHit(d, 'cached', c.etag);
         helpers.expectDataNoErrors(d);
@@ -316,9 +304,8 @@ describe.only('memory', function() {
         helpers.expectCacheErrors(c, 'Missing cache', 1);
         expect(c.created).to.eql(c.errorTime);
 
-        expect(cache.store.data).to.have.property('-internal/cache');
-
-        const d = Cacheism.Data.parse(cache.store.data['-internal/cache']);
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataMiss(d, null, null);
         helpers.expectDataErrors(d, 'Error: Missing cache', 1);
@@ -334,9 +321,8 @@ describe.only('memory', function() {
         helpers.expectCacheErrors(c, 'Missing cache', 1);
         expect(c.created).to.eql(c.errorTime);
 
-        expect(cache.store.data).to.have.property('-internal/cache');
-
-        const d = Cacheism.Data.parse(cache.store.data['-internal/cache']);
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataMiss(d, null, null);
         helpers.expectDataErrors(d, 'Error: Missing cache', 1);
@@ -350,9 +336,9 @@ describe.only('memory', function() {
       it('should return a Hit (cached value) on success', async function () {
         mockdate.set('2000-11-22');
 
-        cache.store.data['-internal/cache'] = Cacheism.Data.fromResponse(
+        await cache.store.set(Cacheism.Data.fromResponse(
           new Cacheism.Hit('-internal/cache', 'cached')
-        ).stringify();
+        ));
 
         mockdate.reset();
 
@@ -363,9 +349,8 @@ describe.only('memory', function() {
         helpers.expectCacheHit(c, true, 'cached');
         helpers.expectCacheNoErrors(c);
 
-        expect(cache.store.data).to.have.property('-internal/cache');
-
-        const d = Cacheism.Data.parse(cache.store.data['-internal/cache']);
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataHit(d, 'cached', c.etag);
         helpers.expectDataNoErrors(d);
@@ -374,9 +359,9 @@ describe.only('memory', function() {
       it('should return a Hit (cached value) on error', async function () {
         mockdate.set('2000-11-22');
 
-        cache.store.data['-internal/cache'] = Cacheism.Data.fromResponse(
+        await cache.store.set(Cacheism.Data.fromResponse(
           new Cacheism.Hit('-internal/cache', 'cached')
-        ).stringify();
+        ));
 
         mockdate.reset();
 
@@ -387,9 +372,8 @@ describe.only('memory', function() {
         helpers.expectCacheHit(c, true, 'cached');
         helpers.expectCacheNoErrors(c);
 
-        expect(cache.store.data).to.have.property('-internal/cache');
-
-        const d = Cacheism.Data.parse(cache.store.data['-internal/cache']);
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataHit(d, 'cached', c.etag);
         helpers.expectDataNoErrors(d);

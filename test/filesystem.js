@@ -1,10 +1,14 @@
 const expect = require('expect.js');
+const mockdate = require('mockdate');
+
 const fs = require('fs');
 const path = require('path');
 const datadir = path.resolve(__dirname, './cache-filesystem');
 
 const Cacheism = require('../lib/cacheism');
 const cache = new Cacheism(Cacheism.store.filesystem({ datadir }));
+
+const helpers = require('./helpers');
 
 describe('filesystem', function() {
 
@@ -28,222 +32,366 @@ describe('filesystem', function() {
 
   describe('when status=onlyFresh', async function () {
 
-    it('should return a Hit with the live value', async function () {
-      const c = await cache.go('-internal', 'nocache', Cacheism.Status.onlyFresh, async () => {
-        return 'live';
+    describe('and no existing cache', async function () {
+
+      it('should return a Hit (live value) on success', async function () {
+        const c = await cache.go('-internal', 'cache', Cacheism.Status.onlyFresh, async () => {
+          return 'live';
+        });
+
+        helpers.expectCacheHit(c, false, 'live');
+        helpers.expectCacheNoErrors(c);
+
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
+
+        helpers.expectDataHit(d, 'live', c.etag);
+        helpers.expectDataNoErrors(d);
       });
 
-      expect(c).to.be.a(Cacheism.Hit);
-      expect(c).to.have.property('version', 2);
-      expect(c).to.have.property('cacheName', '-internal/nocache');
-      expect(c).to.have.property('cached', false);
-      expect(c).to.have.property('created');
-      expect(c.created).to.be.a(Date);
-      expect(c).to.have.property('data', 'live');
-      expect(c).to.have.property('error', null);
-      expect(c).to.have.property('etag');
+      it('should return a Miss on error', async function () {
+        const c = await cache.go('-internal', 'cache', Cacheism.Status.onlyFresh, async () => {
+          throw Error('cache error');
+        });
+
+        helpers.expectCacheMiss(c, false, null);
+        helpers.expectCacheErrors(c, 'cache error', 1);
+        expect(c.created).to.eql(c.errorTime);
+
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
+
+        helpers.expectDataMiss(d, null);
+        helpers.expectDataErrors(d, 'Error: cache error', 1);
+        expect(d.created).to.eql(d.errorTime);
+      });
+
     });
 
-    it('should return a Miss on error', async function () {
-      const c = await cache.go('-internal', 'nocache', Cacheism.Status.onlyFresh, async () => {
-        throw Error('cache error');
+    describe('and having existing cache', async function () {
+
+      it('should return a Hit (live value) on success', async function () {
+        mockdate.set('2000-11-22');
+
+        await cache.store.set(Cacheism.Data.fromResponse(
+          new Cacheism.Hit('-internal/cache', 'cached')
+        ));
+
+        mockdate.reset();
+
+        const c = await cache.go('-internal', 'cache', Cacheism.Status.onlyFresh, async () => {
+          return 'live';
+        });
+
+        helpers.expectCacheHit(c, false, 'live');
+        helpers.expectCacheNoErrors(c);
+
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
+
+        helpers.expectDataHit(d, 'live', c.etag);
+        helpers.expectDataNoErrors(d);
       });
 
-      expect(c).to.be.a(Cacheism.Miss);
-      expect(c).to.have.property('version', 2);
-      expect(c).to.have.property('cacheName', '-internal/nocache');
-      expect(c).to.have.property('error');
-      expect(c.error).to.be.an(Error);
-      expect(c.error).to.have.property('message', 'cache error');
-    });
+      it('should return a Miss on error', async function () {
+        mockdate.set('2000-11-22');
 
-    it('should update cache with successful live value', async function () {
-      const c = await cache.go('-internal', 'true', Cacheism.Status.onlyFresh, async () => {
-        return 'live';
+        await cache.store.set(Cacheism.Data.fromResponse(
+          new Cacheism.Hit('-internal/cache', 'cached')
+        ));
+
+        mockdate.reset();
+
+        const c = await cache.go('-internal', 'cache', Cacheism.Status.onlyFresh, async () => {
+          throw Error('cache error');
+        });
+
+        helpers.expectCacheMiss(c, false, null);
+        helpers.expectCacheErrors(c, 'cache error', 1);
+        expect(c.created).to.eql(c.errorTime);
+
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
+
+        helpers.expectDataMiss(d, null);
+        helpers.expectDataErrors(d, 'Error: cache error', 1);
+        expect(d.created).to.eql(d.errorTime);
       });
 
-      expect(c).to.be.a(Cacheism.Hit);
-      expect(c).to.have.property('version', 2);
-      expect(c).to.have.property('cacheName', '-internal/true');
-      expect(c).to.have.property('cached', false);
-      expect(c).to.have.property('created');
-      expect(c.created).to.be.a(Date);
-      expect(c).to.have.property('data', 'live');
-      expect(c).to.have.property('error', null);
-      expect(c).to.have.property('etag');
-
-      expect(await cache.store.isset('-internal/true')).to.be(true);
     });
 
   });
 
   describe('when status=cacheOnFail', function () {
 
-    it('should return a Miss on error with no cache', async function () {
-      const c = await cache.go('-internal', 'nocache', Cacheism.Status.cacheOnFail, async () => {
-        throw Error('cache error');
+    describe('and no existing cache', async function () {
+
+      it('should return a Hit (live value) on success', async function () {
+        const c = await cache.go('-internal', 'cache', Cacheism.Status.cacheOnFail, async () => {
+          return 'live';
+        });
+
+        helpers.expectCacheHit(c, false, 'live');
+        helpers.expectCacheNoErrors(c);
+
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
+
+        helpers.expectDataHit(d, 'live', c.etag);
+        helpers.expectDataNoErrors(d);
       });
 
-      expect(c).to.be.a(Cacheism.Miss);
-      expect(c).to.have.property('version', 2);
-      expect(c).to.have.property('cacheName', '-internal/nocache');
-      expect(c).to.have.property('error');
-      expect(c.error).to.be.an(Error);
-      expect(c.error).to.have.property('message', 'cache error');
+      it('should return a Miss on error', async function () {
+        const c = await cache.go('-internal', 'cache', Cacheism.Status.cacheOnFail, async () => {
+          throw Error('cache error');
+        });
+
+        helpers.expectCacheMiss(c, false, null);
+        helpers.expectCacheErrors(c, 'cache error', 1);
+        expect(c.created).to.eql(c.errorTime);
+
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
+
+        helpers.expectDataMiss(d, null, c.etag);
+        helpers.expectDataErrors(d, 'Error: cache error', 1);
+        expect(d.created).to.eql(d.errorTime);
+      });
+
     });
 
-    it('should return a Hit on error with cache', async function () {
-      await cache.store.set(new Cacheism.Hit('-internal/true', 'cached'));
+    describe('and having existing cache', async function () {
 
-      const c = await cache.go('-internal', 'true', Cacheism.Status.cacheOnFail, async () => {
-        throw Error('cache error');
+      it('should return a Hit (live value) on success', async function () {
+        mockdate.set('2000-11-22');
+
+        await cache.store.set(Cacheism.Data.fromResponse(
+          new Cacheism.Hit('-internal/cache', 'cached')
+        ));
+
+        mockdate.reset();
+
+        const c = await cache.go('-internal', 'cache', Cacheism.Status.cacheOnFail, async () => {
+          return 'live';
+        });
+
+        helpers.expectCacheHit(c, false, 'live');
+        helpers.expectCacheNoErrors(c);
+
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
+
+        helpers.expectDataHit(d, 'live', c.etag);
+        helpers.expectDataNoErrors(d);
       });
 
-      expect(c).to.be.a(Cacheism.Hit);
-      expect(c).to.have.property('version', 2);
-      expect(c).to.have.property('cacheName', '-internal/true');
-      expect(c).to.have.property('cached', true);
-      expect(c).to.have.property('created');
-      expect(c.created).to.be.a(Date);
-      expect(c).to.have.property('data', 'cached');
-      expect(c).to.have.property('error');
-      expect(c.error).to.be.an(Error);
-      expect(c.error).to.have.property('message', 'cache error');
-      expect(c).to.have.property('etag');
-    });
+      it('should return a Hit (cached value) on error', async function () {
+        mockdate.set('2000-11-22');
 
-    it('should return a Hit with the live value with cache', async function () {
-      await cache.store.set(new Cacheism.Hit('-internal/true', 'cached'));
+        await cache.store.set(Cacheism.Data.fromResponse(
+          new Cacheism.Hit('-internal/cache', 'cached')
+        ));
 
-      const c = await cache.go('-internal', 'true', Cacheism.Status.cacheOnFail, async () => {
-        return 'live';
+        mockdate.reset();
+
+        const c = await cache.go('-internal', 'cache', Cacheism.Status.cacheOnFail, async () => {
+          throw Error('cache error');
+        });
+
+        helpers.expectCacheHit(c, true, 'cached');
+        helpers.expectCacheErrors(c, 'cache error', 1);
+        expect(c.created).not.to.eql(c.errorTime);
+
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
+
+        helpers.expectDataHit(d, 'cached', c.etag);
+        helpers.expectDataErrors(d, 'Error: cache error', 1);
+        expect(d.created).not.to.eql(d.errorTime);
       });
 
-      expect(c).to.be.a(Cacheism.Hit);
-      expect(c).to.have.property('version', 2);
-      expect(c).to.have.property('cacheName', '-internal/true');
-      expect(c).to.have.property('cached', false);
-      expect(c).to.have.property('created');
-      expect(c.created).to.be.a(Date);
-      expect(c).to.have.property('data', 'live');
-      expect(c).to.have.property('error', null);
-      expect(c).to.have.property('etag');
-    });
-
-    it('should update cache with successful live value', async function () {
-      await cache.store.set(new Cacheism.Hit('-internal/true', 'cached'));
-
-      const c = await cache.go('-internal', 'true', Cacheism.Status.cacheOnFail, async () => {
-        return 'live';
-      });
-
-      expect(c).to.be.a(Cacheism.Hit);
-      expect(c).to.have.property('version', 2);
-      expect(c).to.have.property('cacheName', '-internal/true');
-      expect(c).to.have.property('cached', false);
-      expect(c).to.have.property('created');
-      expect(c.created).to.be.a(Date);
-      expect(c).to.have.property('data', 'live');
-      expect(c).to.have.property('error', null);
-      expect(c).to.have.property('etag');
     });
 
   });
 
   describe('when status=preferCache', function () {
 
-    it('should return a Miss on error with no cache', async function () {
-      const c = await cache.go('-internal', 'nocache', Cacheism.Status.preferCache, async () => {
-        throw Error('cache error');
+    describe('and no existing cache', async function () {
+
+      it('should return a Hit (live value) on success', async function () {
+        const c = await cache.go('-internal', 'cache', Cacheism.Status.preferCache, async () => {
+          return 'live';
+        });
+
+        helpers.expectCacheHit(c, false, 'live');
+        helpers.expectCacheNoErrors(c);
+
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
+
+        helpers.expectDataHit(d, 'live', c.etag);
+        helpers.expectDataNoErrors(d);
       });
 
-      expect(c).to.be.a(Cacheism.Miss);
-      expect(c).to.have.property('version', 2);
-      expect(c).to.have.property('cacheName', '-internal/nocache');
-      expect(c).to.have.property('error');
-      expect(c.error).to.be.an(Error);
-      expect(c.error).to.have.property('message', 'cache error');
+      it('should return a Miss on error', async function () {
+        const c = await cache.go('-internal', 'cache', Cacheism.Status.preferCache, async () => {
+          throw Error('cache error');
+        });
+
+        helpers.expectCacheMiss(c, false, null);
+        helpers.expectCacheErrors(c, 'cache error', 1);
+        expect(c.created).to.eql(c.errorTime);
+
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
+
+        helpers.expectDataMiss(d, null, c.etag);
+        helpers.expectDataErrors(d, 'Error: cache error', 1);
+        expect(d.created).to.eql(d.errorTime);
+      });
+
     });
 
-    it('should return a Hit with the cached value with cache', async function () {
-      await cache.store.set(new Cacheism.Hit('-internal/true', 'cached'));
+    describe('and having existing cache', async function () {
 
-      const c = await cache.go('-internal', 'true', Cacheism.Status.preferCache, async () => {
-        return 'live';
+      it('should return a Hit (cached value) on success', async function () {
+        mockdate.set('2000-11-22');
+
+        await cache.store.set(Cacheism.Data.fromResponse(
+          new Cacheism.Hit('-internal/cache', 'cached')
+        ));
+
+        mockdate.reset();
+
+        const c = await cache.go('-internal', 'cache', Cacheism.Status.preferCache, async () => {
+          return 'live';
+        });
+
+        helpers.expectCacheHit(c, true, 'cached');
+        helpers.expectCacheNoErrors(c);
+
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
+
+        helpers.expectDataHit(d, 'cached', c.etag);
+        helpers.expectDataNoErrors(d);
       });
 
-      expect(c).to.be.a(Cacheism.Hit);
-      expect(c).to.have.property('version', 2);
-      expect(c).to.have.property('cacheName', '-internal/true');
-      expect(c).to.have.property('cached', true);
-      expect(c).to.have.property('created');
-      expect(c.created).to.be.a(Date);
-      expect(c).to.have.property('data', 'cached');
-      expect(c).to.have.property('error', null);
-      expect(c).to.have.property('etag');
-    });
+      it('should return a Hit (cached value) on error', async function () {
+        mockdate.set('2000-11-22');
 
-    it('should return a Hit with the live value with no cache', async function () {
-      const c = await cache.go('-internal', 'true', Cacheism.Status.preferCache, async () => {
-        return 'live';
+        await cache.store.set(Cacheism.Data.fromResponse(
+          new Cacheism.Hit('-internal/cache', 'cached')
+        ));
+
+        mockdate.reset();
+
+        const c = await cache.go('-internal', 'cache', Cacheism.Status.preferCache, async () => {
+          throw Error('cache error');
+        });
+
+        helpers.expectCacheHit(c, true, 'cached');
+        helpers.expectCacheNoErrors(c);
+
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
+
+        helpers.expectDataHit(d, 'cached', c.etag);
+        helpers.expectDataNoErrors(d);
       });
 
-      expect(c).to.be.a(Cacheism.Hit);
-      expect(c).to.have.property('version', 2);
-      expect(c).to.have.property('cacheName', '-internal/true');
-      expect(c).to.have.property('cached', false);
-      expect(c).to.have.property('created');
-      expect(c.created).to.be.a(Date);
-      expect(c).to.have.property('data', 'live');
-      expect(c).to.have.property('error', null);
-      expect(c).to.have.property('etag');
     });
 
   });
 
   describe('when status=onlyCache', function () {
-    it('should return a Miss on error with no cache', async function () {
-      const c = await cache.go('-internal', 'nocache', Cacheism.Status.onlyCache, async () => {
-        throw Error('cache error');
+
+    describe('and no existing cache', async function () {
+
+      it('should return a Miss on success', async function () {
+        const c = await cache.go('-internal', 'cache', Cacheism.Status.onlyCache, async () => {
+          return 'live';
+        });
+
+        helpers.expectCacheMiss(c, false, null);
+        helpers.expectCacheErrors(c, 'Missing cache', 1);
+        expect(c.created).to.eql(c.errorTime);
+
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
+
+        helpers.expectDataMiss(d, null, null);
+        helpers.expectDataErrors(d, 'Error: Missing cache', 1);
+        expect(d.created).to.eql(d.errorTime);
       });
 
-      expect(c).to.be.a(Cacheism.Miss);
-      expect(c).to.have.property('version', 2);
-      expect(c).to.have.property('cacheName', '-internal/nocache');
-      expect(c).to.have.property('error');
-      expect(c.error).to.be.an(Error);
-      expect(c.error).to.have.property('message', 'Missing cache');
+      it('should return a Miss on error', async function () {
+        const c = await cache.go('-internal', 'cache', Cacheism.Status.onlyCache, async () => {
+          throw Error('cache error');
+        });
+
+        helpers.expectCacheMiss(c, false, null);
+        helpers.expectCacheErrors(c, 'Missing cache', 1);
+        expect(c.created).to.eql(c.errorTime);
+
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
+
+        helpers.expectDataMiss(d, null, null);
+        helpers.expectDataErrors(d, 'Error: Missing cache', 1);
+        expect(d.created).to.eql(d.errorTime);
+      });
+
     });
 
-    it('should return a Hit with the cached value with cache', async function () {
-      await cache.store.set(new Cacheism.Hit('-internal/true', 'cached'));
+    describe('and having existing cache', async function () {
 
-      const c = await cache.go('-internal', 'true', Cacheism.Status.onlyCache, async () => {
-        return 'live';
+      it('should return a Hit (cached value) on success', async function () {
+        mockdate.set('2000-11-22');
+
+        await cache.store.set(Cacheism.Data.fromResponse(
+          new Cacheism.Hit('-internal/cache', 'cached')
+        ));
+
+        mockdate.reset();
+
+        const c = await cache.go('-internal', 'cache', Cacheism.Status.onlyCache, async () => {
+          return 'live';
+        });
+
+        helpers.expectCacheHit(c, true, 'cached');
+        helpers.expectCacheNoErrors(c);
+
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
+
+        helpers.expectDataHit(d, 'cached', c.etag);
+        helpers.expectDataNoErrors(d);
       });
 
-      expect(c).to.be.a(Cacheism.Hit);
-      expect(c).to.have.property('version', 2);
-      expect(c).to.have.property('cacheName', '-internal/true');
-      expect(c).to.have.property('cached', true);
-      expect(c).to.have.property('created');
-      expect(c.created).to.be.a(Date);
-      expect(c).to.have.property('data', 'cached');
-      expect(c).to.have.property('error', null);
-      expect(c).to.have.property('etag');
-    });
+      it('should return a Hit (cached value) on error', async function () {
+        mockdate.set('2000-11-22');
 
-    it('should return a Miss with no cache', async function () {
-      const c = await cache.go('-internal', 'nocache', Cacheism.Status.onlyCache, async () => {
-        return 'live';
+        await cache.store.set(Cacheism.Data.fromResponse(
+          new Cacheism.Hit('-internal/cache', 'cached')
+        ));
+
+        mockdate.reset();
+
+        const c = await cache.go('-internal', 'cache', Cacheism.Status.onlyCache, async () => {
+          return 'live';
+        });
+
+        helpers.expectCacheHit(c, true, 'cached');
+        helpers.expectCacheNoErrors(c);
+
+        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        const d = await cache.store.get('-internal/cache');
+
+        helpers.expectDataHit(d, 'cached', c.etag);
+        helpers.expectDataNoErrors(d);
       });
 
-      expect(c).to.be.a(Cacheism.Miss);
-      expect(c).to.have.property('version', 2);
-      expect(c).to.have.property('cacheName', '-internal/nocache');
-      expect(c).to.have.property('error');
-      expect(c.error).to.be.an(Error);
-      expect(c.error).to.have.property('message', 'Missing cache');
     });
 
   });

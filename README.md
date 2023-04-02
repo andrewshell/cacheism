@@ -69,7 +69,7 @@ the data was fetched from cache versus fresh data.
 
 ```
 Hit {
-  version: 2,
+  version: 3,
   cacheName: '-internal/hoopla',
   cached: true,
   created: 2022-04-22T21:05:14.094Z,
@@ -78,6 +78,8 @@ Hit {
       at /Users/andrewshell/code/personal/test-cacheism/index.js:8:15
       at Cacheism.go (/Users/andrewshell/code/personal/cacheism/lib/cacheism.js:29:30)
       at async run (/Users/andrewshell/code/personal/test-cacheism/index.js:7:13),
+  errorTime: 2022-04-22T21:30:56.275Z,
+  consecutiveErrors: 1,
   etag: '"15-QcHvuZdyxCmLJ4zoYIPsP6pkNoM"',
   isHit: true,
   isMiss: false
@@ -95,7 +97,7 @@ miss if you fetch with the onlyCache status and there isn't a cache.
 
 ```
 Miss {
-  version: 2,
+  version: 3,
   cacheName: '-internal/hoopla',
   cached: false,
   created: 2022-04-22T21:30:56.275Z,
@@ -103,6 +105,8 @@ Miss {
   error: Error: Missing cache
       at Cacheism.go (/Users/andrewshell/code/personal/cacheism/lib/cacheism.js:27:19)
       at async run (/Users/andrewshell/code/personal/test-cacheism/index.js:7:18),
+  errorTime: 2022-04-22T21:30:56.275Z,
+  consecutiveErrors: 1,
   etag: null,
   isHit: false,
   isMiss: true

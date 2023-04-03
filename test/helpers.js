@@ -32,9 +32,7 @@ function expectCacheNoErrors(c) {
 }
 
 function expectCacheErrors(c, error, errors) {
-    expect(c).to.have.property('error');
-    expect(c.error).to.be.an(Error);
-    expect(c.error).to.have.property('message', error);
+    expect(c).to.have.property('error', error);
     expect(c).to.have.property('errorTime');
     expect(c.errorTime).to.be.a(Date);
     expect(c).to.have.property('consecutiveErrors', errors);

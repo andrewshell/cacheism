@@ -1,6 +1,8 @@
 # cacheism
 Simple caching library 
 
+[![Node.js CI](https://github.com/andrewshell/cacheism/actions/workflows/node.js.yml/badge.svg)](https://github.com/andrewshell/cacheism/actions/workflows/node.js.yml)
+
 ## Overview
 
 The goal of cacheism is to wrap an async function with caching logic where we
@@ -72,13 +74,13 @@ Hit {
   version: 3,
   cacheName: '-internal/hoopla',
   cached: true,
-  created: 2022-04-22T21:05:14.094Z,
+  created: 2023-04-02T22:00:49.320Z,
   data: { message: 'Hoopla!' },
   error: Error: Death
-      at /Users/andrewshell/code/personal/test-cacheism/index.js:8:15
-      at Cacheism.go (/Users/andrewshell/code/personal/cacheism/lib/cacheism.js:29:30)
-      at async run (/Users/andrewshell/code/personal/test-cacheism/index.js:7:13),
-  errorTime: 2022-04-22T21:30:56.275Z,
+      at /Users/andrewshell/code/test-cacheism/index.js:9:19
+      at Cacheism.go (/Users/andrewshell/code/cacheism/lib/cacheism.js:30:30)
+      at async run (/Users/andrewshell/code/test-cacheism/index.js:7:18),
+  errorTime: 2023-04-02T22:00:49.928Z,
   consecutiveErrors: 1,
   etag: '"15-QcHvuZdyxCmLJ4zoYIPsP6pkNoM"',
   isHit: true,
@@ -100,12 +102,12 @@ Miss {
   version: 3,
   cacheName: '-internal/hoopla',
   cached: false,
-  created: 2022-04-22T21:30:56.275Z,
+  created: 2023-04-02T22:02:30.294Z,
   data: null,
   error: Error: Missing cache
-      at Cacheism.go (/Users/andrewshell/code/personal/cacheism/lib/cacheism.js:27:19)
-      at async run (/Users/andrewshell/code/personal/test-cacheism/index.js:7:18),
-  errorTime: 2022-04-22T21:30:56.275Z,
+      at Cacheism.go (/Users/andrewshell/code/cacheism/lib/cacheism.js:28:19)
+      at async run (/Users/andrewshell/code/test-cacheism/index.js:7:18),
+  errorTime: 2023-04-02T22:02:30.294Z,
   consecutiveErrors: 1,
   etag: null,
   isHit: false,

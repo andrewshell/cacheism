@@ -6,7 +6,7 @@ const cache = new Cacheism(Cacheism.store.memory());
 
 const helpers = require('./helpers');
 
-describe.only('memory', function() {
+describe('memory', function() {
 
   beforeEach(function() {
     // runs before each test in this block

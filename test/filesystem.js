@@ -50,20 +50,21 @@ describe('filesystem', function() {
       });
 
       it('should return a Miss on error', async function () {
-        const c = await cache.go('-internal', 'cache', Cacheism.Status.onlyFresh, async () => {
-          throw Error('cache error');
-        });
+        let c, d, e;
+        for (e = 1; e < 3; e++) {
+          c = await cache.go('-internal', 'cache', Cacheism.Status.onlyFresh, async () => {
+            throw Error('cache error');
+          });
 
-        helpers.expectCacheMiss(c, false, null);
-        helpers.expectCacheErrors(c, 'cache error', 1);
-        expect(c.created).to.eql(c.errorTime);
+          helpers.expectCacheMiss(c, false, null);
+          helpers.expectCacheErrors(c, 'Error: cache error', e);
 
-        expect(await cache.store.isset('-internal/cache')).to.be(true);
-        const d = await cache.store.get('-internal/cache');
+          expect(await cache.store.isset('-internal/cache')).to.be(true);
+          d = await cache.store.get('-internal/cache');
 
-        helpers.expectDataMiss(d, null);
-        helpers.expectDataErrors(d, 'Error: cache error', 1);
-        expect(d.created).to.eql(d.errorTime);
+          helpers.expectDataMiss(d, null);
+          helpers.expectDataErrors(d, 'Error: cache error', e);
+        }
       });
 
     });
@@ -102,20 +103,21 @@ describe('filesystem', function() {
 
         mockdate.reset();
 
-        const c = await cache.go('-internal', 'cache', Cacheism.Status.onlyFresh, async () => {
-          throw Error('cache error');
-        });
+        let c, d, e;
+        for (e = 1; e < 3; e++) {
+          c = await cache.go('-internal', 'cache', Cacheism.Status.onlyFresh, async () => {
+            throw Error('cache error');
+          });
 
-        helpers.expectCacheMiss(c, false, null);
-        helpers.expectCacheErrors(c, 'cache error', 1);
-        expect(c.created).to.eql(c.errorTime);
+          helpers.expectCacheMiss(c, false, null);
+          helpers.expectCacheErrors(c, 'Error: cache error', e);
 
-        expect(await cache.store.isset('-internal/cache')).to.be(true);
-        const d = await cache.store.get('-internal/cache');
+          expect(await cache.store.isset('-internal/cache')).to.be(true);
+          d = await cache.store.get('-internal/cache');
 
-        helpers.expectDataMiss(d, null);
-        helpers.expectDataErrors(d, 'Error: cache error', 1);
-        expect(d.created).to.eql(d.errorTime);
+          helpers.expectDataMiss(d, null);
+          helpers.expectDataErrors(d, 'Error: cache error', e);
+        }
       });
 
     });
@@ -142,20 +144,21 @@ describe('filesystem', function() {
       });
 
       it('should return a Miss on error', async function () {
-        const c = await cache.go('-internal', 'cache', Cacheism.Status.cacheOnFail, async () => {
-          throw Error('cache error');
-        });
+        let c, d, e;
+        for (e = 1; e < 3; e++) {
+          c = await cache.go('-internal', 'cache', Cacheism.Status.cacheOnFail, async () => {
+            throw Error('cache error');
+          });
 
-        helpers.expectCacheMiss(c, false, null);
-        helpers.expectCacheErrors(c, 'cache error', 1);
-        expect(c.created).to.eql(c.errorTime);
+          helpers.expectCacheMiss(c, false, null);
+          helpers.expectCacheErrors(c, 'Error: cache error', e);
 
-        expect(await cache.store.isset('-internal/cache')).to.be(true);
-        const d = await cache.store.get('-internal/cache');
+          expect(await cache.store.isset('-internal/cache')).to.be(true);
+          d = await cache.store.get('-internal/cache');
 
-        helpers.expectDataMiss(d, null, c.etag);
-        helpers.expectDataErrors(d, 'Error: cache error', 1);
-        expect(d.created).to.eql(d.errorTime);
+          helpers.expectDataMiss(d, null, c.etag);
+          helpers.expectDataErrors(d, 'Error: cache error', e);
+        }
       });
 
     });
@@ -194,20 +197,21 @@ describe('filesystem', function() {
 
         mockdate.reset();
 
-        const c = await cache.go('-internal', 'cache', Cacheism.Status.cacheOnFail, async () => {
-          throw Error('cache error');
-        });
+        let c, d, e;
+        for (e = 1; e < 3; e++) {
+          c = await cache.go('-internal', 'cache', Cacheism.Status.cacheOnFail, async () => {
+            throw Error('cache error');
+          });
 
-        helpers.expectCacheHit(c, true, 'cached');
-        helpers.expectCacheErrors(c, 'cache error', 1);
-        expect(c.created).not.to.eql(c.errorTime);
+          helpers.expectCacheHit(c, true, 'cached');
+          helpers.expectCacheErrors(c, 'Error: cache error', e);
 
-        expect(await cache.store.isset('-internal/cache')).to.be(true);
-        const d = await cache.store.get('-internal/cache');
+          expect(await cache.store.isset('-internal/cache')).to.be(true);
+          d = await cache.store.get('-internal/cache');
 
-        helpers.expectDataHit(d, 'cached', c.etag);
-        helpers.expectDataErrors(d, 'Error: cache error', 1);
-        expect(d.created).not.to.eql(d.errorTime);
+          helpers.expectDataHit(d, 'cached', c.etag);
+          helpers.expectDataErrors(d, 'Error: cache error', e);
+        }
       });
 
     });
@@ -234,20 +238,21 @@ describe('filesystem', function() {
       });
 
       it('should return a Miss on error', async function () {
-        const c = await cache.go('-internal', 'cache', Cacheism.Status.preferCache, async () => {
-          throw Error('cache error');
-        });
+        let c, d, e;
+        for (e = 1; e < 3; e++) {
+          c = await cache.go('-internal', 'cache', Cacheism.Status.preferCache, async () => {
+            throw Error('cache error');
+          });
 
-        helpers.expectCacheMiss(c, false, null);
-        helpers.expectCacheErrors(c, 'cache error', 1);
-        expect(c.created).to.eql(c.errorTime);
+          helpers.expectCacheMiss(c, false, null);
+          helpers.expectCacheErrors(c, 'Error: cache error', e);
 
-        expect(await cache.store.isset('-internal/cache')).to.be(true);
-        const d = await cache.store.get('-internal/cache');
+          expect(await cache.store.isset('-internal/cache')).to.be(true);
+          d = await cache.store.get('-internal/cache');
 
-        helpers.expectDataMiss(d, null, c.etag);
-        helpers.expectDataErrors(d, 'Error: cache error', 1);
-        expect(d.created).to.eql(d.errorTime);
+          helpers.expectDataMiss(d, null, c.etag);
+          helpers.expectDataErrors(d, 'Error: cache error', e);
+        }
       });
 
     });
@@ -286,18 +291,21 @@ describe('filesystem', function() {
 
         mockdate.reset();
 
-        const c = await cache.go('-internal', 'cache', Cacheism.Status.preferCache, async () => {
-          throw Error('cache error');
-        });
+        let c, d, e;
+        for (e = 1; e < 3; e++) {
+          c = await cache.go('-internal', 'cache', Cacheism.Status.preferCache, async () => {
+            throw Error('cache error');
+          });
 
-        helpers.expectCacheHit(c, true, 'cached');
-        helpers.expectCacheNoErrors(c);
+          helpers.expectCacheHit(c, true, 'cached');
+          helpers.expectCacheNoErrors(c);
 
-        expect(await cache.store.isset('-internal/cache')).to.be(true);
-        const d = await cache.store.get('-internal/cache');
+          expect(await cache.store.isset('-internal/cache')).to.be(true);
+          d = await cache.store.get('-internal/cache');
 
-        helpers.expectDataHit(d, 'cached', c.etag);
-        helpers.expectDataNoErrors(d);
+          helpers.expectDataHit(d, 'cached', c.etag);
+          helpers.expectDataNoErrors(d);
+        }
       });
 
     });
@@ -314,32 +322,31 @@ describe('filesystem', function() {
         });
 
         helpers.expectCacheMiss(c, false, null);
-        helpers.expectCacheErrors(c, 'Missing cache', 1);
-        expect(c.created).to.eql(c.errorTime);
+        helpers.expectCacheErrors(c, 'Error: Missing cache', 1);
 
         expect(await cache.store.isset('-internal/cache')).to.be(true);
         const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataMiss(d, null, null);
         helpers.expectDataErrors(d, 'Error: Missing cache', 1);
-        expect(d.created).to.eql(d.errorTime);
       });
 
       it('should return a Miss on error', async function () {
-        const c = await cache.go('-internal', 'cache', Cacheism.Status.onlyCache, async () => {
-          throw Error('cache error');
-        });
+        let c, d, e;
+        for (e = 1; e < 3; e++) {
+          c = await cache.go('-internal', 'cache', Cacheism.Status.onlyCache, async () => {
+            throw Error('cache error');
+          });
 
-        helpers.expectCacheMiss(c, false, null);
-        helpers.expectCacheErrors(c, 'Missing cache', 1);
-        expect(c.created).to.eql(c.errorTime);
+          helpers.expectCacheMiss(c, false, null);
+          helpers.expectCacheErrors(c, 'Error: Missing cache', e);
 
-        expect(await cache.store.isset('-internal/cache')).to.be(true);
-        const d = await cache.store.get('-internal/cache');
+          expect(await cache.store.isset('-internal/cache')).to.be(true);
+          d = await cache.store.get('-internal/cache');
 
-        helpers.expectDataMiss(d, null, null);
-        helpers.expectDataErrors(d, 'Error: Missing cache', 1);
-        expect(d.created).to.eql(d.errorTime);
+          helpers.expectDataMiss(d, null, null);
+          helpers.expectDataErrors(d, 'Error: Missing cache', e);
+        }
       });
 
     });

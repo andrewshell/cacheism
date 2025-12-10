@@ -3,6 +3,10 @@
   "version": "2.0.0",
   "description": "Simple caching library",
   "main": "lib/cacheism.js",
+  "packageManager": "pnpm@9.15.1",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "test": "mocha"
   },

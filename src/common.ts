@@ -1,19 +1,17 @@
 import { etag as generateEtag } from './etag.js';
 
-export class Status {
-  static readonly onlyFresh = 0;
-  static readonly cacheOnFail = 1;
-  static readonly preferCache = 2;
-  static readonly onlyCache = 3;
+export enum Status {
+  onlyFresh = 0,
+  cacheOnFail = 1,
+  preferCache = 2,
+  onlyCache = 3,
 }
-
 Object.freeze(Status);
 
-export class Type {
-  static readonly hit = 'Hit';
-  static readonly miss = 'Miss';
+export enum Type {
+  hit = 'Hit',
+  miss = 'Miss',
 }
-
 Object.freeze(Type);
 
 export class Hit {
@@ -73,7 +71,7 @@ interface ParsedData {
 
 export class Data {
   version: number;
-  type: string;
+  type: Type;
   cacheName: string;
   created: Date;
   data: unknown;
@@ -84,7 +82,7 @@ export class Data {
 
   constructor(
     version: number,
-    type: string,
+    type: Type,
     name: string,
     created: Date,
     data: unknown,
@@ -106,7 +104,7 @@ export class Data {
 
   response(): Hit | Miss {
     if (this.version !== 3) {
-      throw new Error(`Unknown cache version number: ${this.version}`);
+      throw new Error(`Unknown cache version number: ${String(this.version)}`);
     }
 
     let response: Hit | Miss;
@@ -155,7 +153,7 @@ export class Data {
   }
 
   static parse(value: string): Data {
-    const parsed: ParsedData = JSON.parse(value);
+    const parsed = JSON.parse(value) as ParsedData;
 
     if (parsed.version === 2) {
       return new Data(
@@ -174,7 +172,7 @@ export class Data {
     if (parsed.version === 3) {
       return new Data(
         3,
-        parsed.type,
+        parsed.type as Type,
         parsed.cacheName,
         new Date(parsed.created),
         parsed.data,
@@ -185,6 +183,6 @@ export class Data {
       );
     }
 
-    throw new Error(`Unknown cache version number: ${parsed.version}`);
+    throw new Error(`Unknown cache version number: ${String(parsed.version)}`);
   }
 }

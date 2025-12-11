@@ -67,7 +67,7 @@ function stattag(stat: Stats): string {
 /**
  * Create a simple ETag.
  */
-export function etag(entity: string | Buffer | Stats, options?: EtagOptions): string {
+export function etag(entity: string | Buffer | Stats | null | undefined, options?: EtagOptions): string {
   if (entity == null) {
     throw new TypeError('argument entity is required');
   }

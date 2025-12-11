@@ -19,7 +19,7 @@ export class Cacheism {
   async go(
     cacheDomain: string,
     cachePath: string,
-    status: number,
+    status: Status,
     callback: (existing: Hit | Miss) => Promise<unknown>
   ): Promise<Hit | Miss> {
     // Input validation
@@ -29,7 +29,7 @@ export class Cacheism {
     if (typeof cachePath !== 'string') {
       throw new TypeError('cachePath must be a string');
     }
-    if (typeof status !== 'number' || status < 0 || status > 3) {
+    if (typeof status !== 'number' || status < Status.onlyFresh || status > Status.onlyCache) {
       throw new TypeError('status must be a valid Status value (0-3)');
     }
     if (typeof callback !== 'function') {
@@ -63,7 +63,7 @@ export class Cacheism {
       const errorMessage = err instanceof Error ? err.toString() : String(err);
 
       if (status >= Status.cacheOnFail && hasCache && existing.isHit) {
-        response = existing as Hit;
+        response = existing;
         response.error = errorMessage;
         response.errorTime = new Date();
         response.consecutiveErrors++;

@@ -11,28 +11,30 @@ export interface MemoryStore extends Store {
   data: Record<string, string>;
 }
 
-export interface MemoryStoreConfig {
-  // Currently no config options, but allows future expansion
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- Future expansion
+export interface MemoryStoreConfig {}
 
 export function createMemoryStore(_config?: MemoryStoreConfig): MemoryStore {
   const storeMemory: MemoryStore = {
     data: {},
 
-    async get(cacheName: string): Promise<Data> {
-      return Data.parse(storeMemory.data[cacheName]);
+    get(cacheName: string): Promise<Data> {
+      return Promise.resolve(Data.parse(storeMemory.data[cacheName]));
     },
 
-    async set(data: Data): Promise<void> {
+    set(data: Data): Promise<void> {
       storeMemory.data[data.cacheName] = data.stringify();
+      return Promise.resolve();
     },
 
-    async isset(cacheName: string): Promise<boolean> {
-      return storeMemory.data[cacheName] != null;
+    isset(cacheName: string): Promise<boolean> {
+      return Promise.resolve(cacheName in storeMemory.data);
     },
 
-    async unset(cacheName: string): Promise<void> {
+    unset(cacheName: string): Promise<void> {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete storeMemory.data[cacheName];
+      return Promise.resolve();
     }
   };
 

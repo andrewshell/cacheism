@@ -33,6 +33,16 @@ export class Hit {
     this.data = data;
     this.etag = existingEtag ?? generateEtag(JSON.stringify(data));
   }
+
+  withError(error: string, consecutiveErrors: number): Hit {
+    const hit = new Hit(this.cacheName, this.data, this.etag);
+    hit.cached = this.cached;
+    hit.created = this.created;
+    hit.error = error;
+    hit.errorTime = new Date();
+    hit.consecutiveErrors = consecutiveErrors;
+    return hit;
+  }
 }
 
 export class Miss {

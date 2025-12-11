@@ -63,10 +63,7 @@ export class Cacheism {
       const errorMessage = err instanceof Error ? err.toString() : String(err);
 
       if (status >= Status.cacheOnFail && hasCache && existing.isHit) {
-        response = existing;
-        response.error = errorMessage;
-        response.errorTime = new Date();
-        response.consecutiveErrors++;
+        response = existing.withError(errorMessage, existing.consecutiveErrors + 1);
       } else {
         response = new Miss(name, errorMessage, existing.consecutiveErrors + 1);
       }

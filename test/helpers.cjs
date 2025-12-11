@@ -2,10 +2,10 @@ const assert = require('assert');
 
 const { Cacheism } = require('../dist/index.cjs');
 
-function expectCacheHit(c, cached, data) {
+function expectCacheHit(c, cached, data, cacheName = '-internal/cache') {
   assert.ok(c instanceof Cacheism.Hit);
   assert.strictEqual(c.version, 3);
-  assert.strictEqual(c.cacheName, '-internal/cache');
+  assert.strictEqual(c.cacheName, cacheName);
   assert.strictEqual(c.cached, cached);
   assert.ok('created' in c);
   assert.ok(c.created instanceof Date);
@@ -13,10 +13,10 @@ function expectCacheHit(c, cached, data) {
   assert.ok('etag' in c);
 }
 
-function expectCacheMiss(c, cached, data) {
+function expectCacheMiss(c, cached, data, cacheName = '-internal/cache') {
   assert.ok(c instanceof Cacheism.Miss);
   assert.strictEqual(c.version, 3);
-  assert.strictEqual(c.cacheName, '-internal/cache');
+  assert.strictEqual(c.cacheName, cacheName);
   assert.strictEqual(c.cached, cached);
   assert.ok('created' in c);
   assert.ok(c.created instanceof Date);

@@ -1,16 +1,29 @@
 const expect = require('expect.js');
 const mockdate = require('mockdate');
 
-const Cacheism = require('../lib/cacheism');
-const cache = new Cacheism(Cacheism.store.memory());
+const fs = require('fs');
+const path = require('path');
+const datadir = path.resolve(__dirname, './cache-filesystem');
 
-const helpers = require('./helpers');
+const { Cacheism } = require('../dist/index.cjs');
+const cache = new Cacheism(Cacheism.store.filesystem({ datadir }));
 
-describe('memory', function() {
+const helpers = require('./helpers.cjs');
+
+describe('filesystem', function() {
 
   beforeEach(function() {
     // runs before each test in this block
-    cache.store.data = {};
+    if (fs.existsSync(datadir)) {
+      fs.rmSync(datadir, { recursive: true, force: true });
+    }
+  });
+
+  after(function() {
+    // runs once after the last test in this block
+    if (fs.existsSync(datadir)) {
+      fs.rmSync(datadir, { recursive: true, force: true });
+    }
   });
 
   it('should export as a function', function() {

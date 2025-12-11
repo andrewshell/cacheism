@@ -1,7 +1,7 @@
 const expect = require('expect.js');
 const mockdate = require('mockdate');
 
-const Cacheism = require('../lib/cacheism');
+const { Cacheism } = require('../dist/index.cjs');
 
 function expectCacheHit(c, cached, data) {
     expect(c).to.be.a(Cacheism.Hit);

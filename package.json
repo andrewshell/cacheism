@@ -1,6 +1,6 @@
 {
   "name": "@andrewshell/cacheism",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Simple caching library",
   "type": "module",
   "main": "./dist/index.cjs",

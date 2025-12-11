@@ -1,7 +1,14 @@
 # cacheism
-Simple caching library 
+
+Simple caching library
 
 [![Node.js CI](https://github.com/andrewshell/cacheism/actions/workflows/node.js.yml/badge.svg)](https://github.com/andrewshell/cacheism/actions/workflows/node.js.yml)
+
+## Installation
+
+```bash
+npm install @andrewshell/cacheism
+```
 
 ## Overview
 
@@ -13,29 +20,63 @@ Your callback will get passed to it a Hit if there is an existing cache stored
 or a Miss if there is no existing cache.
 
 ```js
-const Cacheism = require('@andrewshell/cacheism');
+const { Cacheism } = require("@andrewshell/cacheism");
 
-const datadir = __dirname + '/data';
+const datadir = __dirname + "/data";
 const cache = new Cacheism(Cacheism.store.filesystem({ datadir }));
 
 async function run() {
-    let result = await cache.go('-internal', 'hoopla', Cacheism.Status.cacheOnFail, async (existing) => {
-        if (Math.random() < 0.5) {
-            throw Error('Death');
-        }
-        return { message: 'Hoopla!' };
-    });
-
-    if (result.isHit) {
-        console.dir(result.data);
+  let result = await cache.go(
+    "-internal",
+    "hoopla",
+    Cacheism.Status.cacheOnFail,
+    async (existing) => {
+      if (Math.random() < 0.5) {
+        throw Error("Death");
+      }
+      return { message: "Hoopla!" };
     }
+  );
 
-    if (result.error) {
-        console.error(result.error);
-    }
+  if (result.isHit) {
+    console.dir(result.data);
+  }
+
+  if (result.error) {
+    console.error(result.error);
+  }
 }
 
-run().catch(err => console.error(err));
+run().catch((err) => console.error(err));
+```
+
+### ESM
+
+```js
+import Cacheism from "@andrewshell/cacheism";
+
+const datadir = new URL("./data", import.meta.url).pathname;
+const cache = new Cacheism(Cacheism.store.filesystem({ datadir }));
+
+const result = await cache.go(
+  "-internal",
+  "hoopla",
+  Cacheism.Status.cacheOnFail,
+  async (existing) => {
+    if (Math.random() < 0.5) {
+      throw Error("Death");
+    }
+    return { message: "Hoopla!" };
+  }
+);
+
+if (result.isHit) {
+  console.dir(result.data);
+}
+
+if (result.error) {
+  console.error(result.error);
+}
 ```
 
 ## Statuses
@@ -57,8 +98,28 @@ and only fetch fresh if the cache is not available.
 
 ### Only Cache
 
-The onlyCache status if for times where we don't want to attempt to fetch fresh
+The onlyCache status is for times where we don't want to attempt to fetch fresh
 data and only return the cache if present.
+
+## Stores
+
+Cacheism supports different storage backends:
+
+### Filesystem Store
+
+Persists cache to JSON files in a directory. Good for production use.
+
+```js
+const cache = new Cacheism(Cacheism.store.filesystem({ datadir: "./cache" }));
+```
+
+### Memory Store
+
+Stores cache in memory. Useful for testing or ephemeral caching.
+
+```js
+const cache = new Cacheism(Cacheism.store.memory());
+```
 
 ## Results
 
@@ -76,10 +137,7 @@ Hit {
   cached: true,
   created: 2023-04-02T22:00:49.320Z,
   data: { message: 'Hoopla!' },
-  error: Error: Death
-      at /Users/andrewshell/code/test-cacheism/index.js:9:19
-      at Cacheism.go (/Users/andrewshell/code/cacheism/lib/cacheism.js:30:30)
-      at async run (/Users/andrewshell/code/test-cacheism/index.js:7:18),
+  error: Error: Death,
   errorTime: 2023-04-02T22:00:49.928Z,
   consecutiveErrors: 1,
   etag: '"15-QcHvuZdyxCmLJ4zoYIPsP6pkNoM"',
@@ -104,9 +162,7 @@ Miss {
   cached: false,
   created: 2023-04-02T22:02:30.294Z,
   data: null,
-  error: Error: Missing cache
-      at Cacheism.go (/Users/andrewshell/code/cacheism/lib/cacheism.js:28:19)
-      at async run (/Users/andrewshell/code/test-cacheism/index.js:7:18),
+  error: Error: Missing cache,
   errorTime: 2023-04-02T22:02:30.294Z,
   consecutiveErrors: 1,
   etag: null,

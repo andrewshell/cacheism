@@ -8,15 +8,11 @@ export interface FilesystemStoreConfig {
   datadir: string;
 }
 
-function mkdir(dirpath: string): void {
-  if (!fs.existsSync(dirpath)) {
-    fs.mkdirSync(dirpath, { recursive: true });
-  }
+async function mkdir(dirpath: string): Promise<void> {
+  await fs.promises.mkdir(dirpath, { recursive: true });
 }
 
 export function createFilesystemStore(config: FilesystemStoreConfig): Store {
-  mkdir(config.datadir);
-
   return {
     async get(cacheName: string): Promise<Data> {
       const filename = path.resolve(config.datadir, `${cacheName}.json`);
@@ -26,13 +22,18 @@ export function createFilesystemStore(config: FilesystemStoreConfig): Store {
 
     async set(data: Data): Promise<void> {
       const filename = path.resolve(config.datadir, `${data.cacheName}.json`);
-      mkdir(path.dirname(filename));
+      await mkdir(path.dirname(filename));
       await writeFile(filename, data.stringify(), 'utf8');
     },
 
     async isset(cacheName: string): Promise<boolean> {
       const filename = path.resolve(config.datadir, `${cacheName}.json`);
-      return fs.existsSync(filename);
+      try {
+        await fs.promises.access(filename);
+        return true;
+      } catch {
+        return false;
+      }
     },
 
     async unset(cacheName: string): Promise<void> {

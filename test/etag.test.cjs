@@ -1,4 +1,4 @@
-
+const { describe, it } = require('node:test');
 const assert = require('assert')
 const Buffer = require('safe-buffer').Buffer
 const { etag } = require('../dist/index.cjs')

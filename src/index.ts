@@ -21,6 +21,20 @@ export class Cacheism {
     status: number,
     callback: (existing: Hit | Miss) => Promise<unknown>
   ): Promise<Hit | Miss> {
+    // Input validation
+    if (typeof cacheDomain !== 'string') {
+      throw new TypeError('cacheDomain must be a string');
+    }
+    if (typeof cachePath !== 'string') {
+      throw new TypeError('cachePath must be a string');
+    }
+    if (typeof status !== 'number' || status < 0 || status > 3) {
+      throw new TypeError('status must be a valid Status value (0-3)');
+    }
+    if (typeof callback !== 'function') {
+      throw new TypeError('callback must be a function');
+    }
+
     const name = this.cacheName(cacheDomain, cachePath);
     let existing: Hit | Miss = new Miss(name, 'Missing cache', 0);
     const hasCache = await this.store.isset(name);

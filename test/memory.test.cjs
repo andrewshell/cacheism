@@ -18,6 +18,23 @@ describe('memory', function() {
     assert.strictEqual(typeof cache.go, 'function');
   });
 
+  describe('when callback returns a Hit instance', function() {
+
+    it('should use the returned Hit directly', async function() {
+      const customHit = new Cacheism.Hit('-internal/cache', 'custom data', '"custom-etag"');
+
+      const c = await cache.go('-internal', 'cache', Cacheism.Status.onlyFresh, async () => {
+        return customHit;
+      });
+
+      assert.ok(c instanceof Cacheism.Hit);
+      assert.strictEqual(c.data, 'custom data');
+      assert.strictEqual(c.etag, '"custom-etag"');
+      assert.strictEqual(c.cached, false);
+    });
+
+  });
+
   describe('when status=onlyFresh', async function () {
 
     describe('and no existing cache', async function () {

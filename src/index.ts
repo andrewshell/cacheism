@@ -1,4 +1,5 @@
 import { Hit, Miss, Data, Status, Type } from './common.js';
+import { etag } from './etag.js';
 import { createFilesystemStore } from './store-filesystem.js';
 import { createMemoryStore, type Store } from './store-memory.js';
 
@@ -107,6 +108,7 @@ export class Cacheism {
 
 // Named exports for ESM users
 export { Hit, Miss, Data, Status, Type };
+export { etag };
 export { createFilesystemStore, createMemoryStore };
 export type { Store } from './store-memory.js';
 export type { FilesystemStoreConfig } from './store-filesystem.js';

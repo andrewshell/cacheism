@@ -1,4 +1,4 @@
-const expect = require('expect.js');
+const assert = require('assert');
 const mockdate = require('mockdate');
 
 const fs = require('fs');
@@ -27,7 +27,7 @@ describe('filesystem', function() {
   });
 
   it('should export as a function', function() {
-    expect(cache.go).to.be.a('function');
+    assert.strictEqual(typeof cache.go, 'function');
   });
 
   describe('when status=onlyFresh', async function () {
@@ -42,7 +42,7 @@ describe('filesystem', function() {
         helpers.expectCacheHit(c, false, 'live');
         helpers.expectCacheNoErrors(c);
 
-        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        assert.strictEqual(await cache.store.isset('-internal/cache'), true);
         const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataHit(d, 'live', c.etag);
@@ -59,10 +59,10 @@ describe('filesystem', function() {
           helpers.expectCacheMiss(c, false, null);
           helpers.expectCacheErrors(c, 'Error: cache error', e);
 
-          expect(await cache.store.isset('-internal/cache')).to.be(true);
+          assert.strictEqual(await cache.store.isset('-internal/cache'), true);
           d = await cache.store.get('-internal/cache');
 
-          helpers.expectDataMiss(d, null);
+          helpers.expectDataMiss(d, null, null);
           helpers.expectDataErrors(d, 'Error: cache error', e);
         }
       });
@@ -87,7 +87,7 @@ describe('filesystem', function() {
         helpers.expectCacheHit(c, false, 'live');
         helpers.expectCacheNoErrors(c);
 
-        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        assert.strictEqual(await cache.store.isset('-internal/cache'), true);
         const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataHit(d, 'live', c.etag);
@@ -112,10 +112,10 @@ describe('filesystem', function() {
           helpers.expectCacheMiss(c, false, null);
           helpers.expectCacheErrors(c, 'Error: cache error', e);
 
-          expect(await cache.store.isset('-internal/cache')).to.be(true);
+          assert.strictEqual(await cache.store.isset('-internal/cache'), true);
           d = await cache.store.get('-internal/cache');
 
-          helpers.expectDataMiss(d, null);
+          helpers.expectDataMiss(d, null, null);
           helpers.expectDataErrors(d, 'Error: cache error', e);
         }
       });
@@ -136,7 +136,7 @@ describe('filesystem', function() {
         helpers.expectCacheHit(c, false, 'live');
         helpers.expectCacheNoErrors(c);
 
-        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        assert.strictEqual(await cache.store.isset('-internal/cache'), true);
         const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataHit(d, 'live', c.etag);
@@ -153,7 +153,7 @@ describe('filesystem', function() {
           helpers.expectCacheMiss(c, false, null);
           helpers.expectCacheErrors(c, 'Error: cache error', e);
 
-          expect(await cache.store.isset('-internal/cache')).to.be(true);
+          assert.strictEqual(await cache.store.isset('-internal/cache'), true);
           d = await cache.store.get('-internal/cache');
 
           helpers.expectDataMiss(d, null, c.etag);
@@ -181,7 +181,7 @@ describe('filesystem', function() {
         helpers.expectCacheHit(c, false, 'live');
         helpers.expectCacheNoErrors(c);
 
-        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        assert.strictEqual(await cache.store.isset('-internal/cache'), true);
         const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataHit(d, 'live', c.etag);
@@ -206,7 +206,7 @@ describe('filesystem', function() {
           helpers.expectCacheHit(c, true, 'cached');
           helpers.expectCacheErrors(c, 'Error: cache error', e);
 
-          expect(await cache.store.isset('-internal/cache')).to.be(true);
+          assert.strictEqual(await cache.store.isset('-internal/cache'), true);
           d = await cache.store.get('-internal/cache');
 
           helpers.expectDataHit(d, 'cached', c.etag);
@@ -230,7 +230,7 @@ describe('filesystem', function() {
         helpers.expectCacheHit(c, false, 'live');
         helpers.expectCacheNoErrors(c);
 
-        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        assert.strictEqual(await cache.store.isset('-internal/cache'), true);
         const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataHit(d, 'live', c.etag);
@@ -247,7 +247,7 @@ describe('filesystem', function() {
           helpers.expectCacheMiss(c, false, null);
           helpers.expectCacheErrors(c, 'Error: cache error', e);
 
-          expect(await cache.store.isset('-internal/cache')).to.be(true);
+          assert.strictEqual(await cache.store.isset('-internal/cache'), true);
           d = await cache.store.get('-internal/cache');
 
           helpers.expectDataMiss(d, null, c.etag);
@@ -275,7 +275,7 @@ describe('filesystem', function() {
         helpers.expectCacheHit(c, true, 'cached');
         helpers.expectCacheNoErrors(c);
 
-        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        assert.strictEqual(await cache.store.isset('-internal/cache'), true);
         const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataHit(d, 'cached', c.etag);
@@ -300,7 +300,7 @@ describe('filesystem', function() {
           helpers.expectCacheHit(c, true, 'cached');
           helpers.expectCacheNoErrors(c);
 
-          expect(await cache.store.isset('-internal/cache')).to.be(true);
+          assert.strictEqual(await cache.store.isset('-internal/cache'), true);
           d = await cache.store.get('-internal/cache');
 
           helpers.expectDataHit(d, 'cached', c.etag);
@@ -324,7 +324,7 @@ describe('filesystem', function() {
         helpers.expectCacheMiss(c, false, null);
         helpers.expectCacheErrors(c, 'Error: Missing cache', 1);
 
-        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        assert.strictEqual(await cache.store.isset('-internal/cache'), true);
         const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataMiss(d, null, null);
@@ -341,7 +341,7 @@ describe('filesystem', function() {
           helpers.expectCacheMiss(c, false, null);
           helpers.expectCacheErrors(c, 'Error: Missing cache', e);
 
-          expect(await cache.store.isset('-internal/cache')).to.be(true);
+          assert.strictEqual(await cache.store.isset('-internal/cache'), true);
           d = await cache.store.get('-internal/cache');
 
           helpers.expectDataMiss(d, null, null);
@@ -369,7 +369,7 @@ describe('filesystem', function() {
         helpers.expectCacheHit(c, true, 'cached');
         helpers.expectCacheNoErrors(c);
 
-        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        assert.strictEqual(await cache.store.isset('-internal/cache'), true);
         const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataHit(d, 'cached', c.etag);
@@ -392,7 +392,7 @@ describe('filesystem', function() {
         helpers.expectCacheHit(c, true, 'cached');
         helpers.expectCacheNoErrors(c);
 
-        expect(await cache.store.isset('-internal/cache')).to.be(true);
+        assert.strictEqual(await cache.store.isset('-internal/cache'), true);
         const d = await cache.store.get('-internal/cache');
 
         helpers.expectDataHit(d, 'cached', c.etag);

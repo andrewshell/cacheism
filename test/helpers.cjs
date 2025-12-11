@@ -1,75 +1,75 @@
-const expect = require('expect.js');
+const assert = require('assert');
 const mockdate = require('mockdate');
 
 const { Cacheism } = require('../dist/index.cjs');
 
 function expectCacheHit(c, cached, data) {
-    expect(c).to.be.a(Cacheism.Hit);
-    expect(c).to.have.property('version', 3);
-    expect(c).to.have.property('cacheName', '-internal/cache');
-    expect(c).to.have.property('cached', cached);
-    expect(c).to.have.property('created');
-    expect(c.created).to.be.a(Date);
-    expect(c).to.have.property('data', data);
-    expect(c).to.have.property('etag');
+    assert.ok(c instanceof Cacheism.Hit);
+    assert.strictEqual(c.version, 3);
+    assert.strictEqual(c.cacheName, '-internal/cache');
+    assert.strictEqual(c.cached, cached);
+    assert.ok('created' in c);
+    assert.ok(c.created instanceof Date);
+    assert.strictEqual(c.data, data);
+    assert.ok('etag' in c);
 }
 
 function expectCacheMiss(c, cached, data) {
-    expect(c).to.be.a(Cacheism.Miss);
-    expect(c).to.have.property('version', 3);
-    expect(c).to.have.property('cacheName', '-internal/cache');
-    expect(c).to.have.property('cached', cached);
-    expect(c).to.have.property('created');
-    expect(c.created).to.be.a(Date);
-    expect(c).to.have.property('data', data);
-    expect(c).to.have.property('etag', null);
+    assert.ok(c instanceof Cacheism.Miss);
+    assert.strictEqual(c.version, 3);
+    assert.strictEqual(c.cacheName, '-internal/cache');
+    assert.strictEqual(c.cached, cached);
+    assert.ok('created' in c);
+    assert.ok(c.created instanceof Date);
+    assert.strictEqual(c.data, data);
+    assert.strictEqual(c.etag, null);
 }
 
 function expectCacheNoErrors(c) {
-    expect(c).to.have.property('error', null);
-    expect(c).to.have.property('errorTime', null);
-    expect(c).to.have.property('consecutiveErrors', 0);
+    assert.strictEqual(c.error, null);
+    assert.strictEqual(c.errorTime, null);
+    assert.strictEqual(c.consecutiveErrors, 0);
 }
 
 function expectCacheErrors(c, error, errors) {
-    expect(c).to.have.property('error', error);
-    expect(c).to.have.property('errorTime');
-    expect(c.errorTime).to.be.a(Date);
-    expect(c).to.have.property('consecutiveErrors', errors);
+    assert.strictEqual(c.error, error);
+    assert.ok('errorTime' in c);
+    assert.ok(c.errorTime instanceof Date);
+    assert.strictEqual(c.consecutiveErrors, errors);
 }
 
 function expectDataHit(d, data, etag) {
-    expect(d).to.be.a(Cacheism.Data);
-    expect(d).to.have.property('version', 3);
-    expect(d).to.have.property('type', Cacheism.Type.hit);
-    expect(d).to.have.property('created');
-    expect(d.created).to.be.a(Date);
-    expect(d).to.have.property('data', data);
-    expect(d).to.have.property('etag', etag);
+    assert.ok(d instanceof Cacheism.Data);
+    assert.strictEqual(d.version, 3);
+    assert.strictEqual(d.type, Cacheism.Type.hit);
+    assert.ok('created' in d);
+    assert.ok(d.created instanceof Date);
+    assert.strictEqual(d.data, data);
+    assert.strictEqual(d.etag, etag);
 }
 
 function expectDataMiss(d, data, etag) {
-    expect(d).to.be.a(Cacheism.Data);
-    expect(d).to.have.property('version', 3);
-    expect(d).to.have.property('type', Cacheism.Type.miss);
-    expect(d).to.have.property('created');
-    expect(d.created).to.be.a(Date);
-    expect(d).to.have.property('data', data);
-    expect(d).to.have.property('etag', etag);
+    assert.ok(d instanceof Cacheism.Data);
+    assert.strictEqual(d.version, 3);
+    assert.strictEqual(d.type, Cacheism.Type.miss);
+    assert.ok('created' in d);
+    assert.ok(d.created instanceof Date);
+    assert.strictEqual(d.data, data);
+    assert.strictEqual(d.etag, etag);
 }
 
 function expectDataNoErrors(d) {
-    expect(d).to.have.property('error', null);
-    expect(d).to.have.property('errorTime', null);
-    expect(d).to.have.property('consecutiveErrors', 0);
+    assert.strictEqual(d.error, null);
+    assert.strictEqual(d.errorTime, null);
+    assert.strictEqual(d.consecutiveErrors, 0);
 }
 
 
 function expectDataErrors(d, error, errors) {
-    expect(d).to.have.property('error', error);
-    expect(d).to.have.property('errorTime');
-    expect(d.errorTime).to.be.a(Date);
-    expect(d).to.have.property('consecutiveErrors', errors);
+    assert.strictEqual(d.error, error);
+    assert.ok('errorTime' in d);
+    assert.ok(d.errorTime instanceof Date);
+    assert.strictEqual(d.consecutiveErrors, errors);
 }
 
 module.exports = {

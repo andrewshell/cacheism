@@ -35,6 +35,58 @@ describe('memory', function() {
 
   });
 
+  describe('when callback returns a Miss instance', function() {
+
+    it('should use the returned Miss directly', async function() {
+      const customMiss = new Cacheism.Miss('-internal/cache', 'custom error', 2);
+
+      const c = await cache.go('-internal', 'cache', Cacheism.Status.onlyFresh, async () => {
+        return customMiss;
+      });
+
+      helpers.expectCacheMiss(c, false, null);
+      helpers.expectCacheErrors(c, 'custom error', 2);
+    });
+
+    it('should persist the returned Miss and preserve consecutiveErrors', async function() {
+      const customMiss = new Cacheism.Miss('-internal/cache', 'custom error', 2);
+
+      await cache.go('-internal', 'cache', Cacheism.Status.onlyFresh, async () => {
+        return customMiss;
+      });
+
+      assert.strictEqual(await cache.store.isset('-internal/cache'), true);
+
+      const d = await cache.store.get('-internal/cache');
+      helpers.expectDataMiss(d, null, null);
+      helpers.expectDataErrors(d, 'custom error', 2);
+
+      const back = d.response();
+      assert.ok(back instanceof Cacheism.Miss);
+      assert.strictEqual(back.consecutiveErrors, 2);
+    });
+
+    it('should honor a returned Miss over a cached Hit under cacheOnFail', async function() {
+      mockdate.set('2000-11-22');
+      await cache.store.set(Cacheism.Data.fromResponse(new Cacheism.Hit('-internal/cache', 'cached')));
+      mockdate.reset();
+
+      const customMiss = new Cacheism.Miss('-internal/cache', 'deliberate miss', 1);
+
+      const c = await cache.go('-internal', 'cache', Cacheism.Status.cacheOnFail, async () => {
+        return customMiss;
+      });
+
+      helpers.expectCacheMiss(c, false, null);
+      helpers.expectCacheErrors(c, 'deliberate miss', 1);
+
+      const d = await cache.store.get('-internal/cache');
+      helpers.expectDataMiss(d, null, null);
+      helpers.expectDataErrors(d, 'deliberate miss', 1);
+    });
+
+  });
+
   describe('when status=onlyFresh', async function () {
 
     describe('and no existing cache', async function () {

@@ -55,6 +55,8 @@ export class Cacheism {
         const result = await callback(existing);
         if (result instanceof Hit) {
           response = result;
+        } else if (result instanceof Miss) {
+          response = result;
         } else {
           response = new Hit(name, result);
         }

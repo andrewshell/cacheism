@@ -79,6 +79,22 @@ if (result.error) {
 }
 ```
 
+### Callback return value
+
+What your callback does determines the response `cache.go` returns:
+
+- **Return raw data** — it is wrapped in a `Hit` and stored.
+- **Return a `Hit`** — it is used as-is (lets you set a custom `etag`, for example).
+- **Return a `Miss`** — it is used as-is: an _authoritative_ miss. It is stored as a
+  real `Miss` (preserving its `consecutiveErrors`) and is **not** treated as a thrown
+  error, so it does **not** trigger the `cacheOnFail`/`preferCache` fallback to a stale
+  cached `Hit`. When constructing the `Miss`, use the cache name handed to your callback
+  so it persists under the right key: `return new Cacheism.Miss(existing.cacheName, message, n)`.
+- **Throw** — `cache.go` decides the response based on the status (for example,
+  `cacheOnFail` falls back to a cached `Hit` if one exists).
+
+In short: a returned value is authoritative, while a throw delegates to the status policy.
+
 ## Statuses
 
 ### Only Fresh
@@ -89,7 +105,9 @@ want to fetch the fresh data and store it in the cache for other requests.
 ### Cache on Fail
 
 The cacheOnFail status is for times where we want to try to fetch fresh data,
-but if an error is thrown, use the cache if present.
+but if an error is thrown, use the cache if present. Note this fallback only
+applies when the callback _throws_ — explicitly returning a `Miss` is honored
+as-is (see [Callback return value](#callback-return-value)).
 
 ### Prefer Cache
 

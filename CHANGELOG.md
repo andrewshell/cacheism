@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.1](https://github.com/andrewshell/cacheism/compare/v3.0.0...v3.0.1) (2026-06-28)
+
+
+### Bug Fixes
+
+* honor a Miss returned from the go() callback instead of wrapping it in a Hit ([26046bc](https://github.com/andrewshell/cacheism/commit/26046bcbc19b7d1489a3997ad6c0a5a46b8d7010))
+* honor a Miss returned from the go() callback instead of wrapping it in a Hit ([c2fbce5](https://github.com/andrewshell/cacheism/commit/c2fbce55740a1f8bd841c2613e3ceef7edd7ae1d))
+
 ## [3.0.0](https://github.com/andrewshell/cacheism/compare/v2.0.0...v3.0.0) (2025-12-11)
 
 
